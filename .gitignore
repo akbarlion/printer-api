@@ -55,6 +55,7 @@ uploads/*
 # Backup files
 *.bak
 *.backup
+*.bat
 
 # PHP error logs
 error.log

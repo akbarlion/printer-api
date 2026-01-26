@@ -151,7 +151,25 @@ class Snmp_service
             $supplies['yellow'] = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.4');
             $data['supplies'] = $supplies;
 
-            // 3. Memory
+            // 3. Paper Trays and Options
+            $data['paper_trays'] = [
+                'default_paper_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.1'),
+                'tray_1_type' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.1'),
+                'tray_2_type' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.2'),
+                'tray_1_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.1'),
+                'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.2')
+            ];
+
+            // 4. Cartridge Information
+            $data['cartridge_info'] = [
+                'supply_level' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.1'),
+                'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1'),
+                'cartridge_serial' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.6.1.1'),
+                'cartridge_install_date' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.15.1.1'),
+                'last_used_date' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1')
+            ];
+
+            // 5. Memory
             $data['memory'] = $this->get_memory_info($ip_address, $community);
 
 
