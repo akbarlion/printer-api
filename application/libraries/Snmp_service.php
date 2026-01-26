@@ -162,7 +162,8 @@ class Snmp_service
                 'tray_1_type' => $tray_type_map[$tray_1_type] ?? 'Unknown',
                 'tray_2_type' => $tray_type_map[$tray_2_type] ?? 'Unknown',
                 'tray_1_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.1') ?: 'A4',
-                'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.2') ?: 'A4'
+                'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.2') ?: 'A4',
+                'note' => 'HP P3010 may return paper type instead of size for some trays'
             ];
 
             // 4. Cartridge Information
