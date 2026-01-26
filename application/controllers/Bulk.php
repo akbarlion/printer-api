@@ -26,9 +26,20 @@ class Bulk extends RestController
     public function testConnections_post()
     {
         header('Access-Control-Allow-Origin: *');
-        $param = $this->post();
-        $ipAddress = $param['ipAddress'] ?? null;
+        
+        $raw_input = $this->input->raw_input_stream;
+        $param = json_decode($raw_input, true) ?: $this->post();
+        
+        $ipAddress = $param['ip'] ?? $param['ipAddress'] ?? null;
         $community = $param['community'] ?? 'public';
+
+        if (empty($ipAddress)) {
+            $this->response([
+                'status' => 400,
+                'message' => 'IP address is required'
+            ], $this::HTTP_BAD_REQUEST);
+            return;
+        }
 
         $result = $this->snmp_lib->test_connection($ipAddress, $community);
 
@@ -58,10 +69,9 @@ class Bulk extends RestController
     public function details_get($id)
     {
         header('Access-Control-Allow-Origin: *');
-        
-        // Set longer execution time for SNMP operations
+
         set_time_limit(60);
-        
+
         if (!$id) {
             $this->response([
                 'status' => 400,
@@ -71,7 +81,6 @@ class Bulk extends RestController
         }
 
         try {
-            // Get printer from DB
             $printer = $this->printer->get_by_id($id);
 
             if (!$printer) {
@@ -82,9 +91,8 @@ class Bulk extends RestController
                 return;
             }
 
-            // Quick test connection first
-            $connectionTest = $this->snmp_lib->test_connection($printer->ipAddress, $printer->community ?? 'public');
-            
+            $connectionTest = $this->snmp_lib->test_connection($printer->ipAddress, $printer->snmpCommunity ?? 'public');
+
             if (!$connectionTest['success']) {
                 $this->response([
                     'status' => 502,
@@ -94,8 +102,7 @@ class Bulk extends RestController
                 return;
             }
 
-            // Fetch details via SNMP (this might take time)
-            $details = $this->snmp_lib->get_printer_details($printer->ipAddress, $printer->community ?? 'public');
+            $details = $this->snmp_lib->get_printer_details($printer->ipAddress, $printer->snmpCommunity ?? 'public');
 
             if ($details['success']) {
                 $this->response([
@@ -106,7 +113,7 @@ class Bulk extends RestController
             } else {
                 $this->response([
                     'status' => 502,
-                    'message' => $details['message'] ?? 'Failed to get printer details',
+                    'message' => 'Failed to get printer details',
                     'error' => $details['error'] ?? null
                 ], 502);
             }
