@@ -42,9 +42,6 @@ yarn-error.log*
 # WebSocket alerts file
 websockets/alerts.json
 
-# Database config (if sensitive)
-application/config/database.php
-
 # Cache files
 application/cache/*
 !application/cache/index.html
