@@ -176,7 +176,7 @@ class Snmp_service
             $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1');
 
             $data['cartridge_info'] = [
-                'supply_level' => $supply_level ? $supply_level . '%' : 'Unknown',
+                'supply_level' => $this->convert_supply_level($supply_level),
                 'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0') ?: '0',
                 'cartridge_serial' => $cartridge_desc ? trim(str_replace('\0', '', $cartridge_desc)) : 'Unknown',
                 'cartridge_install_date' => $install_date ?: 'Not available',
@@ -245,6 +245,27 @@ class Snmp_service
         }
 
         return 'ready';
+    }
+
+    private function convert_supply_level($level)
+    {
+        if ($level === null || $level === '') {
+            return 'Unknown';
+        }
+        
+        $level = (int)$level;
+        
+        if ($level <= 5) {
+            return 'Very Low';
+        } elseif ($level <= 15) {
+            return 'Low';
+        } elseif ($level <= 30) {
+            return 'Medium';
+        } elseif ($level <= 70) {
+            return 'Good';
+        } else {
+            return 'Full';
+        }
     }
 
     private function get_memory_info($ip, $community)
