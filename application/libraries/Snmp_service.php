@@ -154,15 +154,15 @@ class Snmp_service
             // 3. Paper Trays and Options
             $tray_1_type = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.1');
             $tray_2_type = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.2');
-            
+
             $tray_type_map = [
-                1 => 'Other', 
-                2 => 'Unknown', 
-                3 => 'Removable Tray', 
-                4 => 'Built-in Tray', 
+                1 => 'Other',
+                2 => 'Unknown',
+                3 => 'Removable Tray',
+                4 => 'Built-in Tray',
                 5 => 'Manual Feed'
             ];
-            
+
             $data['paper_trays'] = [
                 'default_paper_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.1') ?: 'A4',
                 'tray_1_type' => $tray_type_map[$tray_1_type] ?? 'Unknown',
@@ -173,11 +173,11 @@ class Snmp_service
             ];
 
             // 4. Cartridge Information
-            $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.1');
+            $supply_level = $this->snmp_get($ip_address, $community, '.1.3.6.1.2.1.43.11.1.1.9');
             $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.6.1.1');
             $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.15.1.1');
             $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1');
-            
+
             $data['cartridge_info'] = [
                 'supply_level' => $supply_level ? $supply_level . '%' : 'Unknown',
                 'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1') ?: '0',
