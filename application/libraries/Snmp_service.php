@@ -139,7 +139,7 @@ class Snmp_service
                 'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'), // HP LaserJet P3010 Series
                 'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'), // CE528A
                 'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'), // VNC3508830
-                'engine_cycles' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0'),
+                'engine_cycles' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1'),
                 'status' => $this->get_status($ip_address, $community),
             ];
 
@@ -177,10 +177,10 @@ class Snmp_service
 
             $data['cartridge_info'] = [
                 'supply_level' => $this->convert_supply_level($supply_level),
-                'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0') ?: '0',
+                'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1') ?: '0',
                 'cartridge_serial' => $cartridge_desc ? trim(str_replace('\0', '', $cartridge_desc)) : 'Unknown',
-                'cartridge_install_date' => $install_date ?: 'Not available',
-                'last_used_date' => $last_used ?: 'Not available'
+                'cartridge_install_date' => $install_date ?: 'Data not available from printer',
+                'last_used_date' => $last_used ?: 'Data not available from printer'
             ];
 
             // 5. Memory
