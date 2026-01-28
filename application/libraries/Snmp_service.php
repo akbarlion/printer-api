@@ -136,8 +136,8 @@ class Snmp_service
 
             // 1. Printer Information - BASIC ONLY
             $data['printer_info'] = [
-                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
-                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'),
+                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'),
+                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
                 'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'),
                 'engine_cycles' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0'),
                 'status' => $this->get_status($ip_address, $community),
@@ -235,7 +235,7 @@ class Snmp_service
             '1.3.6.1.4.1.11.2.3.9.4.2.1.2.1.0',  // HP Common
             '1.3.6.1.2.1.43.16.5.1.2.1.1'  // prtAlertSeverityLevel
         ];
-        
+
         foreach ($status_oids as $oid) {
             $status = $this->snmp_get($ip, $community, $oid);
             if ($status !== null) {
@@ -243,7 +243,7 @@ class Snmp_service
                 return $status_map[$status] ?? 'ready';
             }
         }
-        
+
         return 'ready';
     }
 
