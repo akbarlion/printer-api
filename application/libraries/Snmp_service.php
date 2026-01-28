@@ -149,24 +149,23 @@ class Snmp_service
             // P3015 is monochrome, no color supplies
             $data['supplies'] = $supplies;
 
-            // 3. Paper Trays - HP Common OIDs
-            $tray_1_type = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.1');
-            $tray_2_type = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.2');
+            // 3. Paper Trays - Standard Printer MIB
+            $tray_1_media = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.18.1.1'); // Any
+            $tray_2_media = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.18.1.2'); // Plain
+            $tray_1_type = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.1'); // Type
+            $tray_2_type = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.2'); // Type
 
             $tray_type_map = [
-                1 => 'Other',
-                2 => 'Unknown',
                 3 => 'Removable Tray',
                 4 => 'Built-in Tray',
                 5 => 'Manual Feed'
             ];
 
             $data['paper_trays'] = [
-                'default_paper_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.3') ?: 'A4',
-                'tray_1_type' => $tray_type_map[$tray_1_type] ?? 'Unknown',
-                'tray_2_type' => $tray_type_map[$tray_2_type] ?? 'Unknown',
-                'tray_1_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.3') ?: 'A4',
-                'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.4') ?: 'A4',
+                'tray_1_size' => $tray_1_media ?: 'Any Size',
+                'tray_1_type' => $tray_type_map[$tray_1_type] ?? 'Any Type',
+                'tray_2_size' => $tray_2_media ?: 'A4',
+                'tray_2_type' => $tray_type_map[$tray_2_type] ?? 'Plain',
             ];
 
             // 4. Cartridge Information - Standard OIDs
@@ -179,8 +178,8 @@ class Snmp_service
                 'supply_level' => $this->convert_supply_level($supply_level),
                 'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1') ?: '0',
                 'cartridge_serial' => $cartridge_desc ? trim(str_replace('\0', '', $cartridge_desc)) : 'Unknown',
-                'cartridge_install_date' => $install_date ?: 'Data not available from printer',
-                'last_used_date' => $last_used ?: 'Data not available from printer'
+                'cartridge_install_date' => 'Not supported by this printer model',
+                'last_used_date' => 'Not supported by this printer model'
             ];
 
             // 5. Memory
