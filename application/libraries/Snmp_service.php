@@ -99,9 +99,9 @@ class Snmp_service
     {
         try {
             $info = [
-                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
+                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'),
                 'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'),
-                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'),
+                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
                 'status' => $this->get_status($ip_address, $community)
             ];
 
@@ -134,11 +134,11 @@ class Snmp_service
             // Build data step by step - MINIMAL FIRST
             $data = [];
 
-            // 1. Printer Information - BASIC ONLY
+            // 1. Printer Information - Fixed mapping
             $data['printer_info'] = [
-                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
-                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'),
-                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'),
+                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'), // HP LaserJet P3010 Series
+                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'), // CE528A
+                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'), // VNC3508830
                 'engine_cycles' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0'),
                 'status' => $this->get_status($ip_address, $community),
             ];
