@@ -160,18 +160,50 @@ class Snmp_service
                 'tray_2_type' => 'Plain',
             ];
 
-            // 4. Cartridge Information - Standard OIDs
+            // 4. Cartridge Information - Try multiple OIDs
             $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.1');
             $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.6.1.1');
-            $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.15.1.1');
-            $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1');
+            
+            // Try different OIDs for install date and last used
+            $install_date_oids = [
+                '1.3.6.1.2.1.43.11.1.1.15.1.1',
+                '1.3.6.1.2.1.43.11.1.1.14.1.1',
+                '1.3.6.1.2.1.43.5.1.1.14.1',
+                '1.3.6.1.2.1.43.5.1.1.15.1'
+            ];
+            
+            $last_used_oids = [
+                '1.3.6.1.2.1.43.11.1.1.16.1.1',
+                '1.3.6.1.2.1.43.5.1.1.16.1'
+            ];
+            
+            $install_date = null;
+            $last_used = null;
+            
+            // Try each install date OID
+            foreach ($install_date_oids as $oid) {
+                $result = $this->snmp_get($ip_address, $community, $oid);
+                if ($result !== null && $result !== '') {
+                    $install_date = $result;
+                    break;
+                }
+            }
+            
+            // Try each last used OID
+            foreach ($last_used_oids as $oid) {
+                $result = $this->snmp_get($ip_address, $community, $oid);
+                if ($result !== null && $result !== '') {
+                    $last_used = $result;
+                    break;
+                }
+            }
 
             $data['cartridge_info'] = [
                 'supply_level' => $this->convert_supply_level($supply_level),
                 'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1') ?: '0',
                 'cartridge_serial' => $cartridge_desc ? trim(str_replace('\0', '', $cartridge_desc)) : 'Unknown',
-                'cartridge_install_date' => 'Not supported by this printer model',
-                'last_used_date' => 'Not supported by this printer model'
+                'cartridge_install_date' => $install_date ? $this->format_date($install_date) : 'Not available',
+                'last_used_date' => $last_used ? $this->format_date($last_used) : 'Not available'
             ];
 
             // 5. Memory
@@ -257,6 +289,24 @@ class Snmp_service
         } else {
             return 'Full';
         }
+    }
+
+    private function format_date($date_string)
+    {
+        if (empty($date_string) || $date_string === '0') {
+            return 'Not available';
+        }
+        
+        // If it's in YYYYMMDD format like 20250213
+        if (strlen($date_string) === 8 && is_numeric($date_string)) {
+            $year = substr($date_string, 0, 4);
+            $month = substr($date_string, 4, 2);
+            $day = substr($date_string, 6, 2);
+            return $day . '/' . $month . '/' . $year;
+        }
+        
+        // Return as-is if format is unknown
+        return $date_string;
     }
 
     private function get_memory_info($ip, $community)
