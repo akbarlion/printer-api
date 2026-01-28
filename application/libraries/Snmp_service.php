@@ -173,7 +173,7 @@ class Snmp_service
             ];
 
             // 4. Cartridge Information
-            $supply_level = $this->snmp_get($ip_address, $community, '.1.3.6.1.2.1.43.11.1.1.9');
+            $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9');
             $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.6.1.1');
             $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.15.1.1');
             $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1');
