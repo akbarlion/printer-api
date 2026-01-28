@@ -143,12 +143,10 @@ class Snmp_service
                 'status' => $this->get_status($ip_address, $community),
             ];
 
-            // 2. Supplies - HP Common OIDs
+            // 2. Supplies - Only Black for P3015 (Monochrome)
             $supplies = [];
-            $supplies['black'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.1.0');
-            $supplies['cyan'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.2.0');
-            $supplies['magenta'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.3.0');
-            $supplies['yellow'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.4.0');
+            $supplies['black'] = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.1');
+            // P3015 is monochrome, no color supplies
             $data['supplies'] = $supplies;
 
             // 3. Paper Trays - HP Common OIDs
@@ -171,11 +169,11 @@ class Snmp_service
                 'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.4') ?: 'A4',
             ];
 
-            // 4. Cartridge Information - HP Common OIDs
-            $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.1.0');
-            $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.1.1.0');
-            $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.3.1.0');
-            $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.3.2.0');
+            // 4. Cartridge Information - Standard OIDs
+            $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.1');
+            $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.6.1.1');
+            $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.15.1.1');
+            $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1');
 
             $data['cartridge_info'] = [
                 'supply_level' => $supply_level ? $supply_level . '%' : 'Unknown',
@@ -222,6 +220,8 @@ class Snmp_service
             // Remove SNMP type prefixes
             $cleaned = preg_replace('/^(STRING|Counter32|INTEGER|Gauge32|TimeTicks):\s*"?/', '', $cleaned);
             $cleaned = trim($cleaned, '"');
+            // Remove control characters and null bytes
+            $cleaned = preg_replace('/[\x00-\x1F\x7F]/', '', $cleaned);
             return $cleaned;
         }
         return null;
@@ -229,9 +229,22 @@ class Snmp_service
 
     private function get_status($ip, $community)
     {
-        $status = $this->snmp_get($ip, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.2.1.0');
-        $status_map = [1 => 'other', 2 => 'unknown', 3 => 'idle', 4 => 'printing', 5 => 'warmup'];
-        return $status_map[$status] ?? 'unknown';
+        // Try multiple status OIDs
+        $status_oids = [
+            '1.3.6.1.2.1.25.3.5.1.1.1',  // hrDeviceStatus
+            '1.3.6.1.4.1.11.2.3.9.4.2.1.2.1.0',  // HP Common
+            '1.3.6.1.2.1.43.16.5.1.2.1.1'  // prtAlertSeverityLevel
+        ];
+        
+        foreach ($status_oids as $oid) {
+            $status = $this->snmp_get($ip, $community, $oid);
+            if ($status !== null) {
+                $status_map = [1 => 'other', 2 => 'unknown', 3 => 'idle', 4 => 'printing', 5 => 'warmup'];
+                return $status_map[$status] ?? 'ready';
+            }
+        }
+        
+        return 'ready';
     }
 
     private function get_memory_info($ip, $community)
