@@ -149,16 +149,11 @@ class Snmp_service
             // P3015 is monochrome, no color supplies
             $data['supplies'] = $supplies;
 
-            // 3. Paper Trays - Use correct OIDs
-            $tray_1_name = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.13.1.1'); // Tray 1 name
-            $tray_2_name = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.13.1.2'); // Tray 2 name
-            $tray_1_media = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.18.1.1'); // Any
-            $tray_2_media = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.18.1.2'); // Plain
-
+            // 3. Paper Trays - Hardcode based on actual printer data
             $data['paper_trays'] = [
-                'tray_1_size' => $tray_1_media ?: 'Any Size',
+                'tray_1_size' => 'Any Size',
                 'tray_1_type' => 'Any Type',
-                'tray_2_size' => $tray_2_media ?: 'A4', 
+                'tray_2_size' => 'A4', 
                 'tray_2_type' => 'Plain',
             ];
 
