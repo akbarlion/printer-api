@@ -211,6 +211,8 @@ class Snmp_service
             // 5. Memory
             $data['memory'] = $this->get_memory_info($ip_address, $community);
 
+            // 6. Alerts - Get printer alerts/warnings
+            $data['alerts'] = $this->get_printer_alerts($ip_address, $community);
 
             return [
                 'success' => true,
@@ -314,6 +316,21 @@ class Snmp_service
         
         // Return as-is if format is unknown but looks like a date
         return $date_string;
+    }
+
+    private function get_printer_alerts($ip, $community)
+    {
+        $alerts = [];
+        
+        // Try to get up to 5 alerts
+        for ($i = 1; $i <= 5; $i++) {
+            $alert = $this->snmp_get($ip, $community, "1.3.6.1.2.1.43.18.1.1.8.1.{$i}");
+            if ($alert && $alert !== '') {
+                $alerts[] = $alert;
+            }
+        }
+        
+        return $alerts;
     }
 
     private function get_memory_info($ip, $community)
