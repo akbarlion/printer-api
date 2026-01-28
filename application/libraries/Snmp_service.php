@@ -149,14 +149,16 @@ class Snmp_service
             // P3015 is monochrome, no color supplies
             $data['supplies'] = $supplies;
 
-            // 3. Paper Trays - Standard Printer MIB
+            // 3. Paper Trays - Use correct OIDs
+            $tray_1_name = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.13.1.1'); // Tray 1 name
+            $tray_2_name = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.13.1.2'); // Tray 2 name
             $tray_1_media = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.18.1.1'); // Any
             $tray_2_media = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.18.1.2'); // Plain
 
             $data['paper_trays'] = [
                 'tray_1_size' => $tray_1_media ?: 'Any Size',
                 'tray_1_type' => 'Any Type',
-                'tray_2_size' => $tray_2_media ?: 'A4',
+                'tray_2_size' => $tray_2_media ?: 'A4', 
                 'tray_2_type' => 'Plain',
             ];
 
@@ -293,19 +295,24 @@ class Snmp_service
 
     private function format_date($date_string)
     {
-        if (empty($date_string) || $date_string === '0') {
+        if (empty($date_string) || $date_string === '0' || !is_numeric($date_string)) {
+            return 'Not available';
+        }
+        
+        // Skip single digit numbers like "5"
+        if (strlen($date_string) < 6) {
             return 'Not available';
         }
         
         // If it's in YYYYMMDD format like 20250213
-        if (strlen($date_string) === 8 && is_numeric($date_string)) {
+        if (strlen($date_string) === 8) {
             $year = substr($date_string, 0, 4);
             $month = substr($date_string, 4, 2);
             $day = substr($date_string, 6, 2);
             return $day . '/' . $month . '/' . $year;
         }
         
-        // Return as-is if format is unknown
+        // Return as-is if format is unknown but looks like a date
         return $date_string;
     }
 
