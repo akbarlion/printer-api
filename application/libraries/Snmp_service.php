@@ -99,9 +99,9 @@ class Snmp_service
     {
         try {
             $info = [
-                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.1.5.0'),
-                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.25.3.2.1.3.1'),
-                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.5.1.1.17.1'),
+                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
+                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'),
+                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'),
                 'status' => $this->get_status($ip_address, $community)
             ];
 
@@ -136,24 +136,24 @@ class Snmp_service
 
             // 1. Printer Information - BASIC ONLY
             $data['printer_info'] = [
-                'name' => $basic_test,
-                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.25.3.2.1.3.1'),
-                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.5.1.1.17.1'),
-                'engine_cycles' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1'),
+                'name' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.3.0'),
+                'model' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.1.0'),
+                'serial_number' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.1.3.2.0'),
+                'engine_cycles' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0'),
                 'status' => $this->get_status($ip_address, $community),
             ];
 
-            // 2. Supplies - SIMPLE
+            // 2. Supplies - HP Common OIDs
             $supplies = [];
-            $supplies['black'] = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.1');
-            $supplies['cyan'] = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.2');
-            $supplies['magenta'] = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.3');
-            $supplies['yellow'] = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9.1.4');
+            $supplies['black'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.1.0');
+            $supplies['cyan'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.2.0');
+            $supplies['magenta'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.3.0');
+            $supplies['yellow'] = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.4.0');
             $data['supplies'] = $supplies;
 
-            // 3. Paper Trays and Options
-            $tray_1_type = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.1');
-            $tray_2_type = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.2.1.2');
+            // 3. Paper Trays - HP Common OIDs
+            $tray_1_type = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.1');
+            $tray_2_type = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.2');
 
             $tray_type_map = [
                 1 => 'Other',
@@ -164,23 +164,22 @@ class Snmp_service
             ];
 
             $data['paper_trays'] = [
-                'default_paper_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.1') ?: 'A4',
+                'default_paper_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.3') ?: 'A4',
                 'tray_1_type' => $tray_type_map[$tray_1_type] ?? 'Unknown',
                 'tray_2_type' => $tray_type_map[$tray_2_type] ?? 'Unknown',
-                'tray_1_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.1') ?: 'A4',
-                'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.8.2.1.12.1.2') ?: 'A4',
-                'note' => 'HP P3010 may return paper type instead of size for some trays'
+                'tray_1_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.3') ?: 'A4',
+                'tray_2_size' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.8.1.4') ?: 'A4',
             ];
 
-            // 4. Cartridge Information
-            $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.9');
-            $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.6.1.1');
-            $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.15.1.1');
-            $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.11.1.1.16.1.1');
+            // 4. Cartridge Information - HP Common OIDs
+            $supply_level = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.1.0');
+            $cartridge_desc = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.1.1.0');
+            $install_date = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.3.1.0');
+            $last_used = $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.3.2.0');
 
             $data['cartridge_info'] = [
                 'supply_level' => $supply_level ? $supply_level . '%' : 'Unknown',
-                'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.2.1.43.10.2.1.4.1.1') ?: '0',
+                'pages_printed' => $this->snmp_get($ip_address, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.4.1.2.6.0') ?: '0',
                 'cartridge_serial' => $cartridge_desc ? trim(str_replace('\0', '', $cartridge_desc)) : 'Unknown',
                 'cartridge_install_date' => $install_date ?: 'Not available',
                 'last_used_date' => $last_used ?: 'Not available'
@@ -230,7 +229,7 @@ class Snmp_service
 
     private function get_status($ip, $community)
     {
-        $status = $this->snmp_get($ip, $community, '1.3.6.1.2.1.25.3.5.1.1.1');
+        $status = $this->snmp_get($ip, $community, '1.3.6.1.4.1.11.2.3.9.4.2.1.2.1.0');
         $status_map = [1 => 'other', 2 => 'unknown', 3 => 'idle', 4 => 'printing', 5 => 'warmup'];
         return $status_map[$status] ?? 'unknown';
     }
