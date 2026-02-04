@@ -87,3 +87,4 @@ $route['api/monitor/acknowledge-all'] = 'Monitor/acknowledge_all';
 */
 $route['api/test-connection'] = 'Bulk/testConnections';
 $route['api/printers/(.+)/details'] = 'Bulk/details/$1';
+$route['api/printers/(.+)/debug'] = 'Bulk/debug/$1';
